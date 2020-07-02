@@ -1,0 +1,10 @@
+﻿---
+BasedOnStyle: Mozilla
+Language: Cpp
+
+IndentWidth: '4'
+TabWidth: '4'
+
+IndentPPDirectives: AfterHash
+
+...

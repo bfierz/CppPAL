@@ -1,0 +1,85 @@
+version: "{build}"
+
+#image:
+#  - Visual Studio 2015
+#  - Visual Studio 2017
+#  - Visual Studio 2019
+#  - Ubuntu
+#  - Ubuntu1604
+#  - Ubuntu2004
+#  - macos
+
+platform: 
+  - Win32
+  - x64
+  - ARM
+  - ARM64
+
+configuration:
+  - Debug
+  #- Release
+
+environment:
+  global:
+    MSVC_DEFAULT_OPTIONS: ON
+
+  matrix:
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      generator: Visual Studio 15 2017
+      cpp_version: 14
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      generator: Visual Studio 15 2017
+      cpp_version: 17
+    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+      cc: gcc
+      cxx: g++
+      cpp_version: 11
+    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+      cc: gcc
+      cxx: g++
+      cpp_version: 14
+    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+      cc: gcc
+      cxx: g++
+      cpp_version: 17
+    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+      cc: clang
+      cxx: clang++
+      cpp_version: 11
+    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+      cc: clang
+      cxx: clang++
+      cpp_version: 14
+    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+      cc: clang
+      cxx: clang++
+      cpp_version: 17
+
+branches:
+  only:
+    - master
+
+init:
+
+install:
+  - git submodule update --init --recursive
+  
+before_build:
+  - ps: |
+      mkdir build
+      pushd build
+      if ($isWindows) {
+        cmake -G "$env:generator" -A $env:platform -DCPPPAL_CXX_STANDARD="$env:cpp_version" ..
+      } elseif ($isLinux) {
+        cmake -G "Ninja" -D CMAKE_C_COMPILER=$env:cc -D CMAKE_CXX_COMPILER=$env:cxx -DCPPPAL_CXX_STANDARD="$env:cpp_version" ..
+      }
+      popd
+
+build_script:
+  - ps: cmake --build build
+
+test_script:
+
+on_finish:
+  # Tap in for debug CMake problems
+  #- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
