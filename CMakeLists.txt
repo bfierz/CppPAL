@@ -32,6 +32,6 @@ target_sources(CppPAL INTERFACE
 target_link_libraries(CppPAL INTERFACE absl::any absl::bad_any_cast absl::container absl::optional)
 
 # Only build tests when building as standalone project
-if(NOT "^${CMAKE_SOURCE_DIR}$" STREQUAL "^${PROJECT_SOURCE_DIR}$")
+if("^${CMAKE_SOURCE_DIR}$" STREQUAL "^${PROJECT_SOURCE_DIR}$")
 	add_subdirectory(tests)
 endif()
