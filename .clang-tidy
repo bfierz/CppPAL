@@ -1,0 +1,9 @@
+---
+Checks:                '-*,coreguidelines-*,misc-*,modernize-*,performance-*,readability-*'
+WarningsAsErrors:      ''
+HeaderFilterRegex:     'external/.*'
+AnalyzeTemporaryDtors: true
+CheckOptions:
+  - key:               modernize-use-nullptr.NullMacros
+    value:             'NULL'
+...
