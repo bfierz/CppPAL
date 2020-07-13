@@ -24,36 +24,52 @@ environment:
     MSVC_DEFAULT_OPTIONS: ON
 
   matrix:
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      generator: Visual Studio 15 2017
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      generator: Visual Studio 16 2019
+      toolset: ClangCL
       cpp_version: 14
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      generator: Visual Studio 15 2017
-      cpp_version: 17
-    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
-      cc: gcc
-      cxx: g++
-      cpp_version: 11
-    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
-      cc: gcc
-      cxx: g++
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      generator: Visual Studio 16 2019
+      toolset: v140
       cpp_version: 14
-    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
-      cc: gcc
-      cxx: g++
-      cpp_version: 17
-    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
-      cc: clang
-      cxx: clang++
-      cpp_version: 11
-    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
-      cc: clang
-      cxx: clang++
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      generator: Visual Studio 16 2019
+      toolset: v141
       cpp_version: 14
-    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
-      cc: clang
-      cxx: clang++
-      cpp_version: 17
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      generator: Visual Studio 16 2019
+      toolset: v142
+      cpp_version: 14
+    #- APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    #  generator: Visual Studio 15 2017
+    #  cpp_version: 14
+    #- APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    #  generator: Visual Studio 15 2017
+    #  cpp_version: 17
+    #- APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+    #  cc: gcc
+    #  cxx: g++
+    #  cpp_version: 11
+    #- APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+    #  cc: gcc
+    #  cxx: g++
+    #  cpp_version: 14
+    #- APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+    #  cc: gcc
+    #  cxx: g++
+    #  cpp_version: 17
+    #- APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+    #  cc: clang
+    #  cxx: clang++
+    #  cpp_version: 11
+    #- APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+    #  cc: clang
+    #  cxx: clang++
+    #  cpp_version: 14
+    #- APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+    #  cc: clang
+    #  cxx: clang++
+    #  cpp_version: 17
 
 branches:
   only:
@@ -69,7 +85,7 @@ before_build:
       mkdir build
       pushd build
       if ($isWindows) {
-        cmake -G "$env:generator" -A $env:platform -DCPPPAL_CXX_STANDARD="$env:cpp_version" ..
+        cmake -G "$env:generator" -A $env:platform -T "$env:toolset" -DCPPPAL_CXX_STANDARD="$env:cpp_version" ..
       } elseif ($isLinux) {
         cmake -G "Ninja" -D CMAKE_C_COMPILER=$env:cc -D CMAKE_CXX_COMPILER=$env:cxx -DCPPPAL_CXX_STANDARD="$env:cpp_version" ..
       }

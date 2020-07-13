@@ -12,11 +12,6 @@
       "ctestCommandArgs": "",
       "variables": [
         {
-          "name": "CPPPAL_BUILD_TESTS",
-          "value": "True",
-          "type": "BOOL"
-        },
-        {
           "name": "CPPPAL_TEST_CXX",
           "value": "14",
           "type": "STRING"
@@ -73,11 +68,6 @@
       "wslPath": "${defaultWSLPath}",
       "addressSanitizerRuntimeFlags": "detect_leaks=0",
       "variables": [
-        {
-          "name": "CPPPAL_BUILD_TESTS",
-          "value": "True",
-          "type": "BOOL"
-        },
         {
           "name": "CPPPAL_TEST_CXX",
           "value": "11",
