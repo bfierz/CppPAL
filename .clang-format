@@ -5,6 +5,8 @@ Language: Cpp
 IndentWidth: '4'
 TabWidth: '4'
 
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType: None
 IndentPPDirectives: AfterHash
 
 ...
