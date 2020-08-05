@@ -1,75 +1,85 @@
 version: "{build}"
 
-#image:
-#  - Visual Studio 2015
-#  - Visual Studio 2017
-#  - Visual Studio 2019
-#  - Ubuntu
-#  - Ubuntu1604
-#  - Ubuntu2004
-#  - macos
-
 platform: 
-  - Win32
-  - x64
-  - ARM
-  - ARM64
+  - x86
+  - amd64
+  - arm
+  - arm64
 
 configuration:
   - Debug
-  #- Release
+  - Release
 
 environment:
   global:
     MSVC_DEFAULT_OPTIONS: ON
 
   matrix:
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      generator: Visual Studio 16 2019
-      toolset: ClangCL
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      toolset: clangcl
       cpp_version: 14
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      generator: Visual Studio 16 2019
-      toolset: v140
+      toolset: clangcl
       cpp_version: 14
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      generator: Visual Studio 16 2019
-      toolset: v141
+      toolset: clangcl
+      cpp_version: 17
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      toolset: msvc-v140
       cpp_version: 14
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      generator: Visual Studio 16 2019
-      toolset: v142
+      toolset: msvc-v141
       cpp_version: 14
-    #- APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-    #  generator: Visual Studio 15 2017
-    #  cpp_version: 14
-    #- APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-    #  generator: Visual Studio 15 2017
-    #  cpp_version: 17
-    #- APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
-    #  cc: gcc
-    #  cxx: g++
-    #  cpp_version: 11
-    #- APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
-    #  cc: gcc
-    #  cxx: g++
-    #  cpp_version: 14
-    #- APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
-    #  cc: gcc
-    #  cxx: g++
-    #  cpp_version: 17
-    #- APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
-    #  cc: clang
-    #  cxx: clang++
-    #  cpp_version: 11
-    #- APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
-    #  cc: clang
-    #  cxx: clang++
-    #  cpp_version: 14
-    #- APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
-    #  cc: clang
-    #  cxx: clang++
-    #  cpp_version: 17
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      toolset: msvc-v141
+      cpp_version: 17
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      toolset: msvc-v142
+      cpp_version: 14
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      toolset: msvc-v142
+      cpp_version: 17
+    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+      cc: gcc
+      cxx: g++
+      cpp_version: 11
+    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+      cc: gcc
+      cxx: g++
+      cpp_version: 14
+    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+      cc: gcc
+      cxx: g++
+      cpp_version: 17
+    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+      cc: clang
+      cxx: clang++
+      cpp_version: 11
+    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+      cc: clang
+      cxx: clang++
+      cpp_version: 14
+    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+      cc: clang
+      cxx: clang++
+      cpp_version: 17
+
+matrix:
+  exclude:
+    - platform: arm
+      toolset: clangcl
+    - platform: arm64
+      toolset: clangcl
+    - platform: arm
+      toolset: msvc-v140
+    - platform: arm64
+      toolset: msvc-v140
+    - platform: x86
+      APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+    - platform: arm
+      APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
+    - platform: arm64
+      APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
 
 branches:
   only:
@@ -79,22 +89,39 @@ init:
 
 install:
   - git submodule update --init --recursive
-  
-before_build:
+
+build_script:
   - ps: |
       mkdir build
       pushd build
       if ($isWindows) {
-        cmake -G "$env:generator" -A $env:platform -T "$env:toolset" -DCPPPAL_CXX_STANDARD="$env:cpp_version" ..
+        Write-Host "Invoking CMake with toolchain 'win-$env:platform-$env:toolset-toolchain.cmake'"
+        cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE="..\.ci\cmake\win-$env:platform-$env:toolset-toolchain.cmake" -DCPPPAL_CXX_STANDARD="$env:cpp_version" ..
+        $toolset = ""
+        if ($env:toolset -eq "msvc-v142") {
+          $toolset = @{toolset = "14.2"}
+        } elseif ($env:toolset -eq "msvc-v141") {
+          $toolset = @{toolset = "14.1"}
+        } elseif ($env:toolset -eq "msvc-v140") {
+          $toolset = @{toolset = "14.0"}
+        }
+        Write-Host "Setting up compilation environment 'Setup-VSEnv.ps1 -architecture $env:platform @toolset'"
+        ..\.ci\Setup-VSEnv.ps1 -architecture $env:platform @toolset
+        cmake --build .
       } elseif ($isLinux) {
         cmake -G "Ninja" -D CMAKE_C_COMPILER=$env:cc -D CMAKE_CXX_COMPILER=$env:cxx -DCPPPAL_CXX_STANDARD="$env:cpp_version" ..
+        cmake --build .
       }
       popd
 
-build_script:
-  - ps: cmake --build build
-
-test_script:
+for:
+  -
+    matrix:
+      except:
+        - platform: arm
+        - platform: arm64
+    test_script:
+      - ps: build/tests/cpppal_tests
 
 on_finish:
   # Tap in for debug CMake problems

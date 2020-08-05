@@ -1,5 +1,7 @@
-project(CppPAL)
 cmake_minimum_required(VERSION 3.8)
+cmake_policy(SET CMP0048 NEW)
+
+project(CppPAL VERSION 0.1.0.0 LANGUAGES CXX)
 
 # Define C++ standard, minimum requirement is C++14
 # As MSVC is not able to define the minimum level, software needs
