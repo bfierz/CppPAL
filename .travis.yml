@@ -1,0 +1,25 @@
+notifications:
+    email: false
+
+branches:
+    only:
+      - master
+
+language: node_js
+node_js:
+    - node
+
+sudo: required
+
+services:
+    - docker
+
+before_install:
+    docker pull emscripten/emsdk
+
+script:
+    - mkdir build
+    - docker run -dit --name emscripten -u $(id -u):$(id -g) -v $(pwd):/src emscripten/emsdk bash
+    - docker exec -it emscripten cmake -DCMAKE_TOOLCHAIN_FILE="/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake" -B /src/build -S /src
+    - docker exec -it emscripten cmake --build /src/build
+    - node build/tests/cpppal_tests.js
