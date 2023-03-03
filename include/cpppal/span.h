@@ -9,7 +9,7 @@
 // Abseil
 #include <absl/types/span.h>
 
-namespace stdext
+namespace cpppal
 {
 	template<typename T>
 	using span = absl::Span<T>;

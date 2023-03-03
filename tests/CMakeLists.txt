@@ -17,5 +17,5 @@ math(EXPR COMPILER_VERSION "100*${COMPILER_VERSION_MAJOR}+${COMPILER_VERSION_MIN
 target_compile_definitions(cpppal_tests PUBLIC CPPPAL_TEST_COMP_VERSION=${COMPILER_VERSION})
 target_compile_definitions(cpppal_tests PUBLIC CPPPAL_TEST_CXX=${CPPPAL_CXX_STANDARD})
 
-target_link_libraries(cpppal_tests CppPAL Catch2)
+target_link_libraries(cpppal_tests CppPAL Catch2::Catch2WithMain)
 

@@ -1,6 +1,6 @@
-version: "{build}"
+version: '{build}'
 
-platform: 
+platform:
   - x86
   - amd64
   - arm
@@ -39,6 +39,18 @@ environment:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       toolset: msvc-v142
       cpp_version: 17
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      toolset: msvc-v142
+      cpp_version: 20
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
+      toolset: msvc-v142
+      cpp_version: 14
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
+      toolset: msvc-v142
+      cpp_version: 17
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
+      toolset: msvc-v142
+      cpp_version: 20
     - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
       cc: gcc
       cxx: g++
@@ -98,7 +110,9 @@ build_script:
         Write-Host "Invoking CMake with toolchain 'win-$env:platform-$env:toolset-toolchain.cmake'"
         cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE="..\.ci\cmake\win-$env:platform-$env:toolset-toolchain.cmake" -DCPPPAL_CXX_STANDARD="$env:cpp_version" ..
         $toolset = ""
-        if ($env:toolset -eq "msvc-v142") {
+        if ($env:toolset -eq "msvc-v143") {
+          $toolset = @{toolset = "14.3"}
+        } elseif ($env:toolset -eq "msvc-v142") {
           $toolset = @{toolset = "14.2"}
         } elseif ($env:toolset -eq "msvc-v141") {
           $toolset = @{toolset = "14.1"}
@@ -115,8 +129,7 @@ build_script:
       popd
 
 for:
-  -
-    matrix:
+  - matrix:
       except:
         - platform: arm
         - platform: arm64
