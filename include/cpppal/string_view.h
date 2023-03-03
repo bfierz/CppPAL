@@ -6,7 +6,7 @@
 // Abseil
 #include <absl/strings/string_view.h>
 
-namespace stdext
+namespace cpppal
 {
 	using absl::string_view;
 }
